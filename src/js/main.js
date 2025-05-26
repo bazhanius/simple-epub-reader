@@ -9,29 +9,6 @@ function ready() {
 
     let loadingState = loadingStates.ready;
 
-
-    let jumpSuggester = document.querySelector('#jump-suggester');
-    let jumpSuggesterClose = document.querySelector('#jump-suggester-close');
-    let jumped = false;
-
-    jumpSuggesterClose.addEventListener("click", (e) => {
-        jumpSuggester.style.display = 'none';
-    })
-    const jumpController = () => {
-        jumped = false;
-        if (locationHistory.length > 2) {
-            let back = jumpSuggester.querySelector('#jump-suggester-return');
-            back.innerHTML = "Back to location " + locationHistory[1].page;
-            back.onclick = function (e) {
-                e.preventDefault();
-                e.stopPropagation();
-                rendition.display(locationHistory[1].start.cfi);
-                jumpSuggester.style.display = 'none';
-            };
-            jumpSuggester.style.display = 'flex';
-        }
-    }
-
     let tourCompleted = localStorage.getItem("s-e-r_tour-completed") || null;
 
     let next = document.getElementById("next");
@@ -162,6 +139,28 @@ function ready() {
                 + ',' + CFI.segmentString(cfi.start)
                 + ',' + CFI.segmentString(cfi.end)
                 + ')'
+        }
+
+        let jumpSuggester = document.querySelector('#jump-suggester');
+        let jumpSuggesterClose = document.querySelector('#jump-suggester-close');
+        let jumped = false;
+
+        jumpSuggesterClose.addEventListener("click", (e) => {
+            jumpSuggester.style.display = 'none';
+        })
+        const jumpController = () => {
+            jumped = false;
+            if (locationHistory.length > 2) {
+                let back = jumpSuggester.querySelector('#jump-suggester-return');
+                back.innerHTML = "Back to location " + locationHistory[1].page;
+                back.onclick = function (e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    rendition.display(locationHistory[1].start.cfi);
+                    jumpSuggester.style.display = 'none';
+                };
+                jumpSuggester.style.display = 'flex';
+            }
         }
 
         let bookmarks = JSON.parse(localStorage.getItem("s-e-r_bookmarks-" + bookFileName)) || [];
@@ -787,7 +786,7 @@ function ready() {
             document.querySelector('#al-description').textContent = meta.description;
 
             if (meta.publisher) {
-                document.querySelector('#al-publisher').innerHTML = "Издатель: " + meta.publisher;
+                document.querySelector('#al-publisher').innerHTML = "Publisher: " + meta.publisher;
             }
             if (meta.pubdate && meta.pubdate.length === 4) {
                 document.querySelector('#al-date-published').textContent = meta.pubdate;
@@ -1230,7 +1229,6 @@ function ready() {
     fileInput.addEventListener('change', (event) => {
 
         const file = event.target.files[0];
-        console.log(file);
 
         async function openEpub(arrayBuffer) {
             if (book) book.destroy();
