@@ -90,7 +90,7 @@ function ready() {
         console.warn(`Error opening book file: ${bookFile}`);
         let div = document.createElement("div");
         let close = document.createElement("button");
-        close.innerHTML = 'Вернуться назад';
+        close.innerHTML = 'Step back';
         close.onclick = function (e) {
             //window.parent.postMessage("close", "*");
             window.location.href = document.location.href.split('?')[0];
@@ -1203,7 +1203,7 @@ function ready() {
 
     let params = new URLSearchParams(document.location.search);
     if (params.get("book") && params.get("book").length > 0) {
-        bookFile = '/' + params.get("book");
+        bookFile = document.location.href.split('?')[0] + params.get("book");
         bookFileName = params.get("book")?.split('/')?.slice(-1)[0];
 
         fetch(bookFile, {method: 'HEAD'})
