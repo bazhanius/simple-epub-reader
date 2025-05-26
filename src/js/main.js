@@ -21,7 +21,7 @@ function ready() {
         jumped = false;
         if (locationHistory.length > 2) {
             let back = jumpSuggester.querySelector('#jump-suggester-return');
-            back.innerHTML = "Назад к странице " + locationHistory[1].page;
+            back.innerHTML = "Back to location " + locationHistory[1].page;
             back.onclick = function (e) {
                 e.preventDefault();
                 e.stopPropagation();
@@ -814,7 +814,7 @@ function ready() {
         let historyClear = document.querySelector("#history-list-clear-button");
 
         historyClear.addEventListener("click", (e) => {
-            historyListTable.innerHTML = '<span class="font-size-small">Здесь будет ваша история переходов между страницами.</span>';
+            historyListTable.innerHTML = '<span class="font-size-small">Here your page history will be located.</span>';
             locationHistory = [];
             historyClear.disabled = true;
             localStorage.removeItem("s-e-r_history-" + bookFileName);
