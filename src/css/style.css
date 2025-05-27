@@ -1028,6 +1028,7 @@ table tr td svg {
 
 #al-cover img {
     border-radius: 6px;
+    border: 1px solid #ccc;
 }
 
 @keyframes spinner {
@@ -1082,4 +1083,11 @@ details > div {
 }
 details > div:hover, details > div:active {
     background-color: #efefef;
+}
+
+.book-example-author {
+    display: block;
+    color: #aaa;
+    margin-top: 3px;
+    font-size: smaller;
 }
