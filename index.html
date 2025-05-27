@@ -17,10 +17,21 @@
 
 <div id="loader-overlay">
 
-    <div>
+    <div class="choose-file">
+        <details>
+            <summary>Choose book examples</summary>
+            <div>
+                <a href="?book=sample-books/arsene-lupin-by-maurice-leblanc__gutenberg.epub">Arsène Lupin, gentleman-cambrioleur</a> by Maurice Leblanc (234 KB)
+            </div>
+            <div>
+                <a href="?book=sample-books/moby-dick-by-herman-melville__gutenberg.epub">Moby Dick; Or, The Whale</a> by Herman Melville (628 KB)
+            </div>
+            <div>
+                <a href="?book=sample-books/war-and-peace-by-leo-tolstoy__gutenberg.epub">War and 1Peace</a> by Leo Tolstoy (1,8 MB)
+            </div>
+        </details>
+        <hr class="hr-or">
         <input type="file" id="file-input" accept=".epub">
-        <hr/>
-        <button onclick="location.href='?book=sample-books/pg4014-images.epub';">Open example</button>
     </div>
 
     <div class="loading-progress">
@@ -45,8 +56,9 @@
         <button id="read-book-button" disabled>Read the book</button>
     </div>
 
-    <div class="reading-tips">
-        <div>Обучение</div>
+    <div>
+        <div class="reading-tips">
+        <div>Hint</div>
         <svg width="67" height="96" viewBox="0 0 67 96" fill="none" xmlns="http://www.w3.org/2000/svg">
             <rect x="0.5" y="0.5" width="66" height="95" stroke="var(--text)"/>
             <path d="M28 52.5H42" stroke="var(--text)" stroke-linecap="round"/>
@@ -64,7 +76,8 @@
             Left side of the screen to scroll back.<br/>
             Right side to scroll forward.
         </p>
-        <button id="reading-tips-close">OK</button>
+        <button id="reading-tips-close">Close</button>
+    </div>
     </div>
 </div>
 

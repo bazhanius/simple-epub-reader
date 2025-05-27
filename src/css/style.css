@@ -17,7 +17,7 @@ body {
     padding: 0;
     background-color: var(--bg);
     color: var(--text);
-    font-family: Segoe UI,system-ui,-apple-system,sans-serif;
+    font-family: Segoe UI, system-ui, -apple-system, sans-serif;
     font-weight: 300;
     overflow: hidden;
 }
@@ -67,9 +67,7 @@ body {
 /**
  * iPhone 5 : 320 x 568
  */
-@media
-only screen and (max-width: 320px) and (orientation: portrait),
-only screen and (max-width: 568px) and (orientation: landscape) {
+@media only screen and (max-width: 320px) and (orientation: portrait), only screen and (max-width: 568px) and (orientation: landscape) {
     #viewer.scrolled {
         height: calc(100% - 52px);
     }
@@ -85,9 +83,7 @@ only screen and (max-width: 568px) and (orientation: landscape) {
  * iPhone 12/14         : 390 x 844
  * iPhone 14/15 Pro Max : 430 x 932
  */
-@media
-only screen and (min-width: 320px) and (max-width: 430px) and (orientation: portrait),
-only screen and (min-width: 568px) and (max-width: 932px) and (orientation: landscape) {
+@media only screen and (min-width: 320px) and (max-width: 430px) and (orientation: portrait), only screen and (min-width: 568px) and (max-width: 932px) and (orientation: landscape) {
     #viewer.paginated {
         width: calc(100% - 32px);
     }
@@ -105,9 +101,7 @@ only screen and (min-width: 568px) and (max-width: 932px) and (orientation: land
  * iPad Pro 11     :  834 x 1194
  * iPad Pro 12.9   : 1024 x 1366
  */
-@media
-only screen and (min-width: 768px) and (max-width: 1024px) and (orientation: portrait),
-only screen and (min-width: 1024px) and (max-width: 1366px) and (orientation: landscape) {
+@media only screen and (min-width: 768px) and (max-width: 1024px) and (orientation: portrait), only screen and (min-width: 1024px) and (max-width: 1366px) and (orientation: landscape) {
     #viewer.paginated {
         width: calc(100% - 116px);
     }
@@ -183,6 +177,12 @@ only screen and (min-width: 1024px) and (max-width: 1366px) and (orientation: la
 
 .arrow:active {
     opacity: .5;
+}
+
+.choose-file {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
 }
 
 #menu-button {
@@ -557,9 +557,11 @@ only screen and (min-width: 1024px) and (max-width: 1366px) and (orientation: la
 #toc-list svg {
     transition: transform .2s ease;
 }
+
 #toc-list [aria-expanded="true"] svg {
     transform: rotate(90deg);
 }
+
 #toc-list [aria-expanded="false"] svg {
     transform: rotate(0deg);
 }
@@ -751,6 +753,7 @@ input[type="radio"]:checked + label {
     font-size: inherit;
     border-bottom: 1px solid var(--text);
 }
+
 .search-fieldset div {
     display: flex;
     justify-content: space-between;
@@ -872,6 +875,7 @@ table {
     width: 100%;
     border-collapse: collapse;
 }
+
 table tr th {
     text-align: left;
     font-size: smaller;
@@ -896,9 +900,11 @@ table tr td svg {
     border-collapse: separate;
     border-spacing: 5px;
 }
+
 .table-row {
     display: table-row;
 }
+
 .table-cell {
     display: table-cell;
     vertical-align: top;
@@ -912,9 +918,9 @@ table tr td svg {
 #loader-overlay {
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    justify-content: flex-start;
     align-items: center;
-    gap: 12px;
+    gap: 0;
     position: absolute;
     top: 0;
     left: 0;
@@ -923,21 +929,37 @@ table tr td svg {
     background-color: var(--bg);
     color: var(--text);
     z-index: 1000;
+    overflow: hidden;
+    padding: 12px;
+    box-sizing: border-box;
+}
+
+#loader-overlay > div {
+    width: 100%;
+    max-width: 480px;
+    padding: 12px;
 }
 
 #loader-overlay .loading-progress {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 6px;
 }
+
+.loading-progress {
+    font-size: small;
+}
+
 .loading-progress svg {
     width: 32px;
     height: 32px;
 }
+
 .loading-progress__in-progress {
     display: none;
     animation: spinner 1s infinite linear;
 }
+
 .loading-progress__ready {
     display: none;
     animation: none;
@@ -954,29 +976,67 @@ table tr td svg {
     justify-content: center;
     align-items: center;
     gap: 12px;
-    margin-top: 48px;
+    margin-top: 32px;
     line-height: 1.5em;
+    overflow-y: scroll;
 }
 
 #loader-overlay .reading-tips p {
     font-size: small;
 }
+
 #loader-overlay .reading-tips svg {
     width: 67px;
     height: 96px;
     /*animation: spinner 2s infinite linear;*/
 }
 
+.hr-or {
+    position: relative;
+    height: 0;
+    width: 100%;
+    border-top: 1px solid #ccc;
+    border-bottom: none;
+    border-left: none;
+    border-right: none;
+    overflow: visible;
+}
+
+.hr-or::after {
+    display: block;
+    content: "or";
+    font-size: 12px;
+    color: #aaa;
+    line-height: 12px;
+    position: absolute;
+    left: 50%;
+    top: -7px;
+    padding: 0 3px;
+    background-color: white;
+}
+
+.reading-tips {
+    padding: 12px 16px;
+    border: 1px solid #ccc;
+    background-color: #fefefe;
+    border-radius: 6px;
+}
+
 #al-cover {
     text-align: center;
 }
+
 #al-cover img {
     border-radius: 6px;
 }
 
 @keyframes spinner {
-    0% {transform: rotate(0deg);}
-    100% {transform: rotate(360deg);}
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
 }
 
 @media (orientation: portrait) {
@@ -989,4 +1049,37 @@ table tr td svg {
     .arrow {
         display: none;
     }
+}
+
+
+details {
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 0.5em 0.5em 0;
+    font-size: small;
+    font-weight: normal;
+}
+
+summary {
+    margin: -0.5em -0.5em 0;
+    padding: 0.5em;
+    font-size: small;
+    font-weight: normal;
+}
+
+details[open] {
+    padding: 0.5em;
+}
+
+details[open] summary {
+    border-bottom: 1px solid #aaa;
+    margin-bottom: 0.5em;
+}
+
+details > div {
+    padding: 6px 12px;
+    border-radius: 6px;
+}
+details > div:hover, details > div:active {
+    background-color: #efefef;
 }
