@@ -36,31 +36,51 @@ function ready() {
         readingTips.style.display = 'flex';
     }
 
+    let locGeneratedIntervalID = null;
+    let locGenerateStartTime = null;
+
     const loadStart = () => {
+        locGenerateStartTime = new Date();
         loadingState = loadingStates.loading;
+        readBookButton.disabled = true;
         let loaderIcon = loadingProgress.querySelectorAll('svg');
         let loaderBlocks = loadingProgress.querySelectorAll('div');
         loaderIcon[0].style.display = 'block';
         loaderIcon[1].style.display = 'none';
+        loaderIcon[2].style.display = 'none';
+
         loaderBlocks[1].innerHTML = 'Opening the book...'
-        readBookButton.disabled = true;
+        locGeneratedIntervalID = setInterval(function () {
+            let cur = book.locations.generated;
+            let total = book.locations.spine.length;
+            let diff = (new Date() - locGenerateStartTime) / 1000;
+            let remaining = ((1 - cur / total) * diff / (cur / total)).toFixed(0);
+            if (cur && total && diff > 2) {
+                loaderBlocks[1].innerHTML = `Opening the book...<span class="book-example-author">${(cur / total * 100).toFixed(0)}% — About ${remaining}s remaining</span>`
+            }
+            }, 250
+        );
     }
 
     const loadCompleted = () => {
+        clearInterval(locGeneratedIntervalID);
         loadingState = loadingStates.completed;
         let loaderIcon = loadingProgress.querySelectorAll('svg');
         let loaderBlocks = loadingProgress.querySelectorAll('div');
         loaderIcon[0].style.display = 'none';
         loaderIcon[1].style.display = 'block';
+        loaderIcon[2].style.display = 'none';
         loaderBlocks[1].innerHTML = `The book is ready!`
         readBookButton.disabled = false;
     }
 
     const loadFailed = () => {
+        clearInterval(locGeneratedIntervalID);
         loadingState = loadingStates.error;
         let loaderIcon = loadingProgress.querySelectorAll('svg');
         let loaderBlocks = loadingProgress.querySelectorAll('div');
         loaderIcon[0].style.display = 'none';
+        loaderIcon[1].style.display = 'none';
         loaderIcon[2].style.display = 'block';
         loaderBlocks[1].innerHTML = `Error opening book file:<br />${bookFile}`;
         loader.style.display = 'flex';
@@ -962,6 +982,18 @@ function ready() {
             }
         }
 
+        function formatBytes(bytes, decimals = 2) {
+            if (!+bytes) return '0 Bytes'
+
+            const k = 1024
+            const dm = decimals < 0 ? 0 : decimals
+            const sizes = ['Bytes', 'KiB', 'MiB', 'GiB', 'TiB', 'PiB', 'EiB', 'ZiB', 'YiB']
+
+            const i = Math.floor(Math.log(bytes) / Math.log(k))
+
+            return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`
+        }
+
         book.ready.then(function () {
             let keyStoredCurrentLocation = "s-e-r_currentLocation-" + bookFileName;
             let storedCurrentLocation = localStorage.getItem(keyStoredCurrentLocation);
@@ -984,6 +1016,9 @@ function ready() {
         })
             .then(function (locations) {
                 loadCompleted();
+                console.log(JSON.stringify(locations).length);
+                console.log(formatBytes(JSON.stringify(locations).length))
+
                 totalPages.forEach((el) => el.textContent = book.locations.total + 1);
 
                 // Wait for book to be rendered to get current page
