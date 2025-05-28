@@ -40,8 +40,8 @@ function ready() {
     let locGenerateStartTime = null;
 
     const loadStart = () => {
-        locGenerateStartTime = new Date();
         loadingState = loadingStates.loading;
+        locGenerateStartTime = new Date();
         readBookButton.disabled = true;
         let loaderIcon = loadingProgress.querySelectorAll('svg');
         let loaderBlocks = loadingProgress.querySelectorAll('div');
@@ -51,20 +51,24 @@ function ready() {
 
         loaderBlocks[1].innerHTML = 'Opening the book...'
         locGeneratedIntervalID = setInterval(function () {
-            let cur = book.locations.generated;
-            let total = book.locations.spine.length;
-            let diff = (new Date() - locGenerateStartTime) / 1000;
-            let remaining = ((1 - cur / total) * diff / (cur / total)).toFixed(0);
-            if (cur && total && diff > 2) {
-                loaderBlocks[1].innerHTML = `Opening the book...<span class="book-example-author">${(cur / total * 100).toFixed(0)}% — About ${remaining}s remaining</span>`
-            }
+                if (loadingState !== loadingStates.loading) {
+                    clearInterval(locGeneratedIntervalID);
+                } else {
+                    let cur = book.locations.generated;
+                    let total = book.locations.spine.length;
+                    let diff = (new Date() - locGenerateStartTime) / 1000;
+                    let remaining = ((1 - cur / total) * diff / (cur / total)).toFixed(0);
+                    if (cur && total && diff > 2) {
+                        loaderBlocks[1].innerHTML = `Opening the book...<span class="book-example-author">${(cur / total * 100).toFixed(0)}% — About ${remaining}s remaining</span>`
+                    }
+                }
             }, 250
         );
     }
 
     const loadCompleted = () => {
-        clearInterval(locGeneratedIntervalID);
         loadingState = loadingStates.completed;
+        clearInterval(locGeneratedIntervalID);
         let loaderIcon = loadingProgress.querySelectorAll('svg');
         let loaderBlocks = loadingProgress.querySelectorAll('div');
         loaderIcon[0].style.display = 'none';
@@ -75,8 +79,8 @@ function ready() {
     }
 
     const loadFailed = () => {
-        clearInterval(locGeneratedIntervalID);
         loadingState = loadingStates.error;
+        clearInterval(locGeneratedIntervalID);
         let loaderIcon = loadingProgress.querySelectorAll('svg');
         let loaderBlocks = loadingProgress.querySelectorAll('div');
         loaderIcon[0].style.display = 'none';
@@ -108,7 +112,7 @@ function ready() {
 
     const openBook = () => {
 
-        loadStart();
+        if (loadingState !== loadingStates.loading) loadStart();
 
         let rendition = book.renderTo("viewer", {
             //manager: "default", // default / continuous
@@ -1015,6 +1019,7 @@ function ready() {
             }
         })
             .then(function (locations) {
+                loadingState = loadingStates.completed;
                 loadCompleted();
                 console.log(JSON.stringify(locations).length);
                 console.log(formatBytes(JSON.stringify(locations).length))
@@ -1272,6 +1277,7 @@ function ready() {
         }
 
         if (file) {
+
             loadStart();
             const reader = new FileReader();
             reader.addEventListener('load', (event) => {
