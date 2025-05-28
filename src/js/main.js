@@ -1,3 +1,5 @@
+/* jshint esversion: 6 */
+
 function ready() {
 
     const loadingStates = {
@@ -5,7 +7,7 @@ function ready() {
         'loading': 1,
         'completed': 2,
         'error': 3
-    }
+    };
 
     let loadingState = loadingStates.ready;
 
@@ -49,7 +51,7 @@ function ready() {
         loaderIcon[1].style.display = 'none';
         loaderIcon[2].style.display = 'none';
 
-        loaderBlocks[1].innerHTML = 'Opening the book...'
+        loaderBlocks[1].innerHTML = 'Opening the book...';
         locGeneratedIntervalID = setInterval(function () {
                 if (loadingState !== loadingStates.loading) {
                     clearInterval(locGeneratedIntervalID);
@@ -57,14 +59,17 @@ function ready() {
                     let cur = book.locations.generated;
                     let total = book.locations.spine.length;
                     let diff = (new Date() - locGenerateStartTime) / 1000;
-                    let remaining = ((1 - cur / total) * diff / (cur / total)).toFixed(0);
+                    let proportion = cur / total;
+                    loaderIcon[0].querySelectorAll('circle')[1].style.strokeDasharray = `${proportion * 2 * Math.PI * 11.5} ${2 * Math.PI * 11.5}`;
+                    //document.documentElement.style.setProperty("--loading-value", "'" + (proportion * 2 * Math.PI * 18).toFixed(0) + "'");
+                    let remaining = ((1 - proportion) * diff / (proportion)).toFixed(0);
                     if (cur && total && diff > 2) {
-                        loaderBlocks[1].innerHTML = `Opening the book...<span class="book-example-author">${(cur / total * 100).toFixed(0)}% — About ${remaining}s remaining</span>`
+                        loaderBlocks[1].innerHTML = `Opening the book...<span class="book-example-author">${(proportion * 100).toFixed(0)}% — About ${remaining}s remaining</span>`;
                     }
                 }
             }, 250
         );
-    }
+    };
 
     const loadCompleted = () => {
         loadingState = loadingStates.completed;
@@ -76,7 +81,7 @@ function ready() {
         loaderIcon[2].style.display = 'none';
         loaderBlocks[1].innerHTML = `The book is ready!`
         readBookButton.disabled = false;
-    }
+    };
 
     const loadFailed = () => {
         loadingState = loadingStates.error;
@@ -99,20 +104,22 @@ function ready() {
         div.appendChild(close);
         loader.appendChild(div);
         readBookButton.disabled = true;
-    }
+    };
 
     readingTipsClose.addEventListener("click", (e) => {
         readingTips.style.display = 'none';
         localStorage.setItem("s-e-r_tour-completed", "true");
-    })
+    });
 
     readBookButton.addEventListener("click", (e) => {
         loader.style.display = 'none';
-    })
+    });
 
     const openBook = () => {
 
-        if (loadingState !== loadingStates.loading) loadStart();
+        if (loadingState !== loadingStates.loading) {
+            loadStart();
+        }
 
         let rendition = book.renderTo("viewer", {
             //manager: "default", // default / continuous
@@ -534,15 +541,57 @@ function ready() {
 
         let moreAppearanceReset = document.querySelector('#more-appearance-reset');
         let moreAppearanceResetBook = document.querySelector('#more-appearance-reset-book');
+        let localStorageOccupiedSpace = document.querySelector('.local-storage-occupied-space')
 
         moreAppearanceReset.addEventListener('click', (e) => {
             applyTheme(null, null, null, true);
         }, false);
 
+        function formatBytes(bytes, decimals = 2) {
+            if (!+bytes) return '0 Bytes'
+
+            const k = 1024
+            const dm = decimals < 0 ? 0 : decimals
+            const sizes = ['Bytes', 'KiB', 'MiB', 'GiB', 'TiB', 'PiB', 'EiB', 'ZiB', 'YiB']
+
+            const i = Math.floor(Math.log(bytes) / Math.log(k))
+
+            return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`
+        }
+
+        const updateLocalStorage = () => {
+            let lsOccupiedBytes = 0;
+            let lsOccupiedPercent = 0;
+            Object.keys(localStorage).filter((x) => x.startsWith('s-e-r_')).forEach((x) => {
+                lsOccupiedBytes += JSON.stringify(localStorage.getItem(x)).length;
+            });
+            lsOccupiedPercent = parseInt((lsOccupiedBytes / (1024 * 1024 * 5) * 100).toFixed(0));
+            if (lsOccupiedBytes === 0) {
+                moreAppearanceResetBook.disabled = true;
+                localStorageOccupiedSpace.innerHTML = '';
+            } else {
+                moreAppearanceResetBook.disabled = false;
+                localStorageOccupiedSpace.innerHTML = `${formatBytes(lsOccupiedBytes)} of ${formatBytes(1024 * 1024 * 5)} (${lsOccupiedPercent}%)`;
+            }
+
+            // Cleaning up storage when space is running low
+            if (lsOccupiedPercent > 90) {
+                Object.keys(localStorage).filter((x) => x.startsWith('s-e-r_locations-')).forEach((x) => {
+                    // Ignore current book
+                    if (!x.startsWith(`s-e-r_locations-${bookFileName}`)) {
+                        localStorage.removeItem(x);
+                    }
+                });
+            }
+        }
+
         moreAppearanceResetBook.addEventListener('click', (e) => {
             Object.keys(localStorage).filter((x) => x.startsWith('s-e-r_')).forEach((x) => {
-                localStorage.removeItem(x);
+                if (!x.startsWith(`s-e-r_locations-${bookFileName}`)) {
+                    localStorage.removeItem(x);
+                }
             });
+            updateLocalStorage();
             applyTheme(null, null, null, true);
         }, false);
 
@@ -986,19 +1035,11 @@ function ready() {
             }
         }
 
-        function formatBytes(bytes, decimals = 2) {
-            if (!+bytes) return '0 Bytes'
-
-            const k = 1024
-            const dm = decimals < 0 ? 0 : decimals
-            const sizes = ['Bytes', 'KiB', 'MiB', 'GiB', 'TiB', 'PiB', 'EiB', 'ZiB', 'YiB']
-
-            const i = Math.floor(Math.log(bytes) / Math.log(k))
-
-            return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`
-        }
-
         book.ready.then(function () {
+
+            // In order to check the free space and clear it if necessary
+            updateLocalStorage();
+
             let keyStoredCurrentLocation = "s-e-r_currentLocation-" + bookFileName;
             let storedCurrentLocation = localStorage.getItem(keyStoredCurrentLocation);
             if (storedCurrentLocation) {
@@ -1021,8 +1062,6 @@ function ready() {
             .then(function (locations) {
                 loadingState = loadingStates.completed;
                 loadCompleted();
-                console.log(JSON.stringify(locations).length);
-                console.log(formatBytes(JSON.stringify(locations).length))
 
                 totalPages.forEach((el) => el.textContent = book.locations.total + 1);
 
@@ -1056,7 +1095,7 @@ function ready() {
 
                 // Save out the generated locations to JSON
                 localStorage.setItem("s-e-r_locations-" + bookFileName, book.locations.save());
-
+                updateLocalStorage();
             });
 
 
@@ -1236,6 +1275,7 @@ function ready() {
         applyTheme();
     }
 
+
     let book = null;
     let bookFile = null;
     let bookFileName = null;
@@ -1260,8 +1300,6 @@ function ready() {
             }).catch(err => {
             console.log(err)
         });
-    } else {
-
     }
 
     let fileInput = document.getElementById('file-input');
@@ -1292,7 +1330,7 @@ function ready() {
             reader.addEventListener('progress', (event) => {
                 if (event.loaded && event.total) {
                     const percent = (event.loaded / event.total) * 100;
-                    console.log(`Progress: ${Math.round(percent)}`);
+                    //console.log(`Progress: ${Math.round(percent)}`);
                 }
             });
             reader.readAsArrayBuffer(file);

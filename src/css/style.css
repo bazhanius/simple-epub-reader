@@ -957,6 +957,7 @@ table tr td svg {
 
 .loading-progress__in-progress {
     display: none;
+    transition: all 250ms;
     animation: spinner 1s infinite linear;
 }
 
@@ -1012,13 +1013,13 @@ table tr td svg {
     left: 50%;
     top: -7px;
     padding: 0 3px;
-    background-color: white;
+    background-color: var(--bg);
 }
 
 .reading-tips {
     padding: 12px 16px;
     border: 1px solid #ccc;
-    background-color: #fefefe;
+    background-color: var(--bgSecondary);
     border-radius: 6px;
 }
 
@@ -1080,9 +1081,16 @@ details[open] summary {
 details > div {
     padding: 6px 12px;
     border-radius: 6px;
+    color: var(--text);
 }
+
+details > div > a {
+    color: var(--text);
+}
+
+
 details > div:hover, details > div:active {
-    background-color: #efefef;
+    background-color: var(--bgSecondary);
 }
 
 .book-example-author {
@@ -1090,4 +1098,23 @@ details > div:hover, details > div:active {
     color: #aaa;
     margin-top: 3px;
     font-size: smaller;
+}
+
+.more-appearance-reset-book-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.local-storage-occupied-space {
+    display: block;
+    color: #aaa;
+    font-size: 0.7em;
+}
+
+.appearance-secondary-text {
+    display: block;
+    text-align: center;
+    color: #aaa;
+    font-size: 0.7em;
+    padding-top: 8px;
 }
