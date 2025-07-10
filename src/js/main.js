@@ -13,18 +13,6 @@ function ready() {
 
     let tourCompleted = localStorage.getItem("s-e-r_tour-completed") || null;
 
-    let next = document.getElementById("next");
-    next.addEventListener("click", function (e) {
-        rendition.next();
-        e.preventDefault();
-    }, false);
-
-    let prev = document.getElementById("prev");
-    prev.addEventListener("click", function (e) {
-        rendition.prev();
-        e.preventDefault();
-    }, false);
-
     let loader = document.querySelector("#loader-overlay");
     let loadingProgress = document.querySelector(".loading-progress");
 
@@ -134,6 +122,18 @@ function ready() {
             allowScriptedContent: true
         });
         let displayed = rendition.display();
+
+        let next = document.getElementById("next");
+        next.addEventListener("click", function (e) {
+            rendition.next();
+            e.preventDefault();
+        }, false);
+
+        let prev = document.getElementById("prev");
+        prev.addEventListener("click", function (e) {
+            rendition.prev();
+            e.preventDefault();
+        }, false);
 
         const makeRangeCfi = (a, b) => {
             const CFI = new ePub.CFI()
@@ -1340,7 +1340,6 @@ function ready() {
         }
 
     });
-
 
 }
 
