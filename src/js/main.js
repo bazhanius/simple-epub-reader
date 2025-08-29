@@ -86,6 +86,7 @@ function ready() {
         let close = document.createElement("button");
         close.innerHTML = 'Step back';
         close.onclick = function (e) {
+            // close iframe
             //window.parent.postMessage("close", "*");
             window.location.href = document.location.href.split('?')[0];
         };
@@ -481,7 +482,7 @@ function ready() {
                 let hr = (touchEnd.screenX - touchStart.screenX) / wrapper.getBoundingClientRect().width;
                 let vr = (touchEnd.screenY - touchStart.screenY) / wrapper.getBoundingClientRect().height;
 
-                // длительность нажатия менее 250мс (только короткое нажатие, не длительное нажатие)
+                // Touch less than 250ms (only fast press processing as click)
                 if (hr === vr && (touchEndTime - touchStartTime) < 250) {
                     processingClick(touchEnd.pageX);
                 } else {
@@ -720,14 +721,14 @@ function ready() {
         }, false);
 
 
-        // Поиск по всей книге
+        // Search whole book
         const doSearch = (q) => {
             return Promise.all(
                 book.spine.spineItems.map(item => item.load(book.load.bind(book)).then(item.find.bind(item, q)).finally(item.unload.bind(item)))
             ).then(results => Promise.resolve([].concat.apply([], results)));
         }
 
-        // Поиск по главе
+        // Search only chapter
         const doChapterSearch = (q) => {
             let item = book.spine.get(rendition.location.start.cfi);
             return item.load(book.load.bind(book)).then(item.find.bind(item, q)).finally(item.unload.bind(item));
@@ -771,7 +772,7 @@ function ready() {
                 }
             });
 
-            // скрываем все главы с подглавами без активной главы
+            // Hide all chapters and sub-chapters without active chapter
             tocList.querySelectorAll("li").forEach(item => {
                 const expanded = item.getAttribute('aria-expanded');
                 if (expanded !== 'undefined') {
@@ -787,7 +788,7 @@ function ready() {
             updateBookmarksAddDeleteButtonState();
         }
 
-        // Загрузка оглавления
+        // Load table of contents
         book.loaded.navigation.then(function (toc) {
             const resolveURL = (url, relativeTo) => {
                 const base = 'https://example.invalid/'
@@ -849,7 +850,7 @@ function ready() {
             tocList.appendChild(docfrag);
         });
 
-        // Загрузка мета
+        // Load meta info
         book.loaded.metadata.then(function (meta) {
             title.textContent = meta.title;
             author.textContent = meta.creator;
@@ -946,7 +947,7 @@ function ready() {
                     let tdChapter = document.createElement("td");
                     tdChapter.classList.add('fill-rest');
                     let tdLink = document.createElement("td");
-                    tdTime.innerHTML = o.time.split(' ')[1];
+                    tdTime.innerHTML = '<span class="font-size-small">' + o.time + '</span>';
                     tdPage.innerHTML = o.page;
                     tdChapter.innerHTML = o.chapter;
                     if (i === 0) {
@@ -1014,14 +1015,22 @@ function ready() {
             return;
         }
         const updateLocationHistory = (item) => {
-            item.chapter = currentChapter.textContent;
-            item.page = currentPage[0].textContent;
-            item.time = (new Date()).toLocaleString();
-            if (locationHistory && locationHistory[0]
+            // check if location not changed
+            if (locationHistory
+                && locationHistory[0]
                 && JSON.stringify(locationHistory[0]) === JSON.stringify(item)) {
                 return;
             }
-            // Ограничение истории до 20 записей
+            // No history update while jump suggester is visible
+            if (jumpSuggester.style.display === 'flex') return;
+
+            item.chapter = currentChapter.textContent;
+            item.page = currentPage[0].textContent;
+            const d = new Date();
+            item.date = d;
+            item.time = d.toLocaleString();
+
+            // Limit history to 20 entries
             locationHistory.unshift(item) > 20 ? locationHistory.pop() : null;
 
             historyListTable.innerHTML = '';
@@ -1320,9 +1329,6 @@ function ready() {
             const reader = new FileReader();
             reader.addEventListener('load', (event) => {
                 const result = event.target.result;
-                //console.log(reader.result)
-                //console.log(result)
-                //console.log(file)
                 bookFileName = file.name;
                 openEpub(result);
             });
